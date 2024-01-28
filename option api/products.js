@@ -2,12 +2,13 @@ import { createApp } from "vue";
 
 let productModal = null;
 let deleteProductModal = null;
+//因為有其他元件也會使用到，因此將url相關資訊寫在全域
+const url = "https://ec-course-api.hexschool.io/v2";
+const path = "hsuanin-vue2024";
 
 createApp({
   data() {
     return {
-      url: "https://ec-course-api.hexschool.io/v2",
-      path: "hsuanin-vue2024",
       isNew:false,
       products:[],
       tempProduct:{
@@ -18,13 +19,13 @@ createApp({
   },
   methods: {
     checkLogin(params) {
-      console.log(this.url);
+      console.log(url);
       axios
-        .post(`${this.url}/api/user/check`)
+        .post(`${url}/api/user/check`)
         //成功的結果
         .then((res) => {
           console.log(res);
-          this.getProduct();
+          this.getProducts();
         })
         //失敗結果
         .catch((error) => {
@@ -51,43 +52,47 @@ createApp({
         deleteProductModal.show();
       }
     },
-    getProduct(page=1) {
+    getProducts(page = 1) { //給參數預設值
+      const getUrl = `${url}/api/${path}/admin/products?page=${page}`; //為網址參數寫法，page參數帶入，取得當前頁碼的產品資料
       axios
-        .get(`${this.url}/api/${this.path}/admin/products?page=${page}`)
+        .get(getUrl)
         .then((res) => {
           console.log(res.data);
-          this.products = res.data.products;
-          this.pagination = res.data.pagination;
+          const {products, pagination} = res.data;
+          this.products = products;
+          this.pagination = pagination;
           console.log(this.products);
         })
         .catch((error) => {
+          alert(error.response.data.message);
           console.log(error);
+          window.location = 'login.html';
         });
     },
     updateProduct(){
-      let updateOrNewUrl = `${this.url}/api/${this.path}/admin/product/${this.tempProduct.id}`;
+      let updateOrNewUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
       let http = 'put';
       if(this.isNew){
-        updateOrNewUrl = `${this.url}/api/${this.path}/admin/product`;
+        updateOrNewUrl = `${url}/api/${path}/admin/product`;
         http = 'post';
       }
       axios[http](updateOrNewUrl,{data:this.tempProduct})
       .then((res)=>{
         alert(res.data.message);
         productModal.hide();
-        this.getProduct();//取得所有產品
+        this.getProducts();//取得所有產品
       })
       .catch((error)=>{
         alert(error.response.data.message);
       })
     },
     delProduct(){
-      const deleteUrl = `${this.url}/api/${this.path}/admin/product/${this.tempProduct.id}`;
+      const deleteUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
       axios.delete(deleteUrl)
       .then((res)=>{
         alert(res.data.message);
         deleteProductModal.hide();
-        this.getProduct();//更新所有產品
+        this.getProducts();//更新所有產品
       })
       .catch((error)=>{
         alert(error.response.data.message);
@@ -115,9 +120,7 @@ createApp({
       backdrop:'static'
     })
   },
-})
-
-app.component('pagination',{
+}).component('pagination',{
   template:`<p>{{pages}}</p>`,
   props:['pages'],
   data(){
@@ -128,6 +131,4 @@ app.component('pagination',{
   methods:{
 
   },
-})
-
-app.mount('#app');
+}).mount('#app');
