@@ -71,23 +71,23 @@
                     </tr>
                 </tbody>
             </table>
-            <!-- 分頁元件 -->
-            <!-- <pagination :pages="pagination"></pagination> -->
         </div>
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
+        <!-- 分頁元件 -->
+        <pagination :pages="pagination" @change-page="getProducts"></pagination>
+        <!-- <nav aria-label="Page navigation example">
+            <ul class="pagination"> -->
                 <!-- 如果判斷在第一頁的話就顯示disabled樣式，禁止點上一頁按鈕 -->
-                <li class="page-item" 
+                <!-- <li class="page-item" 
                 :class="{disabled:pagination.current_page === 1}"
-                >
+                > -->
                 <!-- 取得上一頁的資料 -->
-                    <a class="page-link" href="#" aria-label="Previous"
+                    <!-- <a class="page-link" href="#" aria-label="Previous"
                     @click.prevent = "getProducts(pagination.current_page - 1)">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
-                </li>
+                </li> -->
                 <!-- 判斷item是否與當前頁面相同 (目前頁面)取得當前頁面的資料-->
-                <li class="page-item" 
+                <!-- <li class="page-item" 
                 v-for="(item,index) in pagination.total_pages"
                 :key="index"
                 :class="{'active': item === pagination.current_page}">
@@ -96,15 +96,13 @@
                         {{item}}
                     </a>
                 </li>
-                <!-- <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li> -->
                 <li class="page-item">
                     <a class="page-link" href="#" aria-label="Next"
                     @click.prevent = "getProducts(pagination.current_page + 1)">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
-            </ul>
+            </ul> -->
         </nav>
         <!-- Modal -->
         <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"
