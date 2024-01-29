@@ -1,4 +1,5 @@
 import { createApp } from "vue";
+import PaginationComponent from "./paginationComponent.js";
 
 let productModal = null;
 let deleteProductModal = null;
@@ -6,19 +7,19 @@ let deleteProductModal = null;
 const url = "https://ec-course-api.hexschool.io/v2";
 const path = "hsuanin-vue2024";
 
-createApp({
+const app = createApp({
   data() {
     return {
-      isNew:false,
-      products:[],
-      tempProduct:{
-        imagesUrl:[],
+      isNew: false,
+      products: [],
+      tempProduct: {
+        imagesUrl: [],
       },
-      pagination:{},
+      pagination: {},
     };
   },
   methods: {
-    checkLogin(params) {
+    checkLogin() {
       console.log(url);
       axios
         .post(`${url}/api/user/check`)
@@ -34,31 +35,32 @@ createApp({
           window.location = "login.html";
         });
     },
-    openModal(status,item){
+    openModal(status, item) {
       console.log(item);
-      if(status === 'new'){
+      if (status === "new") {
         this.tempProduct = {
-          imagesUrl:[],
+          imagesUrl: [],
         };
         this.isNew = true;
         productModal.show();
-      }else if(status === 'edit'){
-        this.tempProduct = {...item};
+      } else if (status === "edit") {
+        this.tempProduct = { ...item };
         this.isNew = false;
         productModal.show();
-      }else if(status === 'delete'){
-        this.tempProduct = {...item};
+      } else if (status === "delete") {
+        this.tempProduct = { ...item };
         this.isNew = false;
         deleteProductModal.show();
       }
     },
-    getProducts(page = 1) { //給參數預設值
+    getProducts(page = 1) {
+      //給參數預設值
       const getUrl = `${url}/api/${path}/admin/products?page=${page}`; //為網址參數寫法，page參數帶入，取得當前頁碼的產品資料
       axios
         .get(getUrl)
         .then((res) => {
           console.log(res.data);
-          const {products, pagination} = res.data;
+          const { products, pagination } = res.data;
           this.products = products;
           this.pagination = pagination;
           console.log(this.products);
@@ -66,42 +68,43 @@ createApp({
         .catch((error) => {
           alert(error.response.data.message);
           console.log(error);
-          window.location = 'login.html';
+          window.location = "login.html";
         });
     },
-    updateProduct(){
+    updateProduct() {
       let updateOrNewUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
-      let http = 'put';
-      if(this.isNew){
+      let http = "put";
+      if (this.isNew) {
         updateOrNewUrl = `${url}/api/${path}/admin/product`;
-        http = 'post';
+        http = "post";
       }
-      axios[http](updateOrNewUrl,{data:this.tempProduct})
-      .then((res)=>{
-        alert(res.data.message);
-        productModal.hide();
-        this.getProducts();//取得所有產品
-      })
-      .catch((error)=>{
-        alert(error.response.data.message);
-      })
+      axios[http](updateOrNewUrl, { data: this.tempProduct })
+        .then((res) => {
+          alert(res.data.message);
+          productModal.hide();
+          this.getProducts(); //取得所有產品
+        })
+        .catch((error) => {
+          alert(error.response.data.message);
+        });
     },
-    delProduct(){
+    delProduct() {
       const deleteUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
-      axios.delete(deleteUrl)
-      .then((res)=>{
-        alert(res.data.message);
-        deleteProductModal.hide();
-        this.getProducts();//更新所有產品
-      })
-      .catch((error)=>{
-        alert(error.response.data.message);
-      })
+      axios
+        .delete(deleteUrl)
+        .then((res) => {
+          alert(res.data.message);
+          deleteProductModal.hide();
+          this.getProducts(); //更新所有產品
+        })
+        .catch((error) => {
+          alert(error.response.data.message);
+        });
     },
-    createImages(){
+    createImages() {
       this.tempProduct.imagesUrl = [];
-      this.tempProduct.imagesUrl.push('');
-    }
+      this.tempProduct.imagesUrl.push("");
+    },
   },
   mounted() {
     const token = document.cookie.replace(
@@ -111,52 +114,21 @@ createApp({
     // console.log(token);
     axios.defaults.headers.common["Authorization"] = token;
     this.checkLogin();
-    productModal = new bootstrap.Modal(document.getElementById("productModal"),{
-      keyboard : false,
-      backdrop:'static'
-    })
-    deleteProductModal = new bootstrap.Modal(document.getElementById("delProductModal"),{
-      keyboard : false,
-      backdrop:'static'
-    })
-  },
-}).component('pagination',{ //分頁元件
-  template:`<nav aria-label="Page navigation example">
-  <ul class="pagination">
-      <li class="page-item" 
-      :class="{disabled:pages.current_page === 1}"
-      >
-          <a class="page-link" href="#" aria-label="Previous"
-          @click.prevent = "changePage(pages.current_page - 1)">
-              <span aria-hidden="true">&laquo;</span>
-          </a>
-      </li>
-      <li class="page-item" 
-      v-for="(item,index) in pages.total_pages"
-      :key="index"
-      :class="{'active': item === pages.current_page}">
-          <a class="page-link" href="#"
-          @click.prevent = "changePage(item)">
-              {{item}}
-          </a>
-      </li>
-      <li class="page-item">
-          <a class="page-link" href="#" aria-label="Next"
-          @click.prevent = "changePage(pages.current_page + 1)">
-              <span aria-hidden="true">&raquo;</span>
-          </a>
-      </li>
-  </ul>
-</nav>`,
-  props:['pages'],
-  data(){
-    return{
-
-    };
-  },
-  methods:{
-    changePage(num){
-      this.$emit('change-page',num)
-    }
-  },
-}).mount('#app');
+    productModal = new bootstrap.Modal(
+      document.getElementById("productModal"),
+      {
+        keyboard: false,
+        backdrop: "static",
+      }
+    );
+    deleteProductModal = new bootstrap.Modal(
+      document.getElementById("delProductModal"),
+      {
+        keyboard: false,
+        backdrop: "static",
+      }
+    );
+  }
+});
+app.component('pagination-component',PaginationComponent); // 區域註冊
+app.mount("#app");
