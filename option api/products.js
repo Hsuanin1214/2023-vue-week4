@@ -1,7 +1,8 @@
 import { createApp } from "vue";
-import PaginationComponent from "./paginationComponent.js";
+import PaginationComponent from "./components/paginationComponent.js";
+import ProductModalComponent from "./components/productModalComponent.js";
 
-let productModal = null;
+// let productModal = null;
 let deleteProductModal = null;
 //因為有其他元件也會使用到，因此將url相關資訊寫在全域
 const url = "https://ec-course-api.hexschool.io/v2";
@@ -16,6 +17,7 @@ const app = createApp({
         imagesUrl: [],
       },
       pagination: {},
+      productModal:null
     };
   },
   methods: {
@@ -42,11 +44,11 @@ const app = createApp({
           imagesUrl: [],
         };
         this.isNew = true;
-        productModal.show();
+        this.productModal.show();
       } else if (status === "edit") {
         this.tempProduct = { ...item };
         this.isNew = false;
-        productModal.show();
+        this.productModal.show();
       } else if (status === "delete") {
         this.tempProduct = { ...item };
         this.isNew = false;
@@ -69,23 +71,6 @@ const app = createApp({
           alert(error.response.data.message);
           console.log(error);
           window.location = "login.html";
-        });
-    },
-    updateProduct() {
-      let updateOrNewUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
-      let http = "put";
-      if (this.isNew) {
-        updateOrNewUrl = `${url}/api/${path}/admin/product`;
-        http = "post";
-      }
-      axios[http](updateOrNewUrl, { data: this.tempProduct })
-        .then((res) => {
-          alert(res.data.message);
-          productModal.hide();
-          this.getProducts(); //取得所有產品
-        })
-        .catch((error) => {
-          alert(error.response.data.message);
         });
     },
     delProduct() {
@@ -114,7 +99,7 @@ const app = createApp({
     // console.log(token);
     axios.defaults.headers.common["Authorization"] = token;
     this.checkLogin();
-    productModal = new bootstrap.Modal(
+    this.productModal = new bootstrap.Modal(
       document.getElementById("productModal"),
       {
         keyboard: false,
@@ -131,4 +116,5 @@ const app = createApp({
   }
 });
 app.component('pagination-component',PaginationComponent); // 區域註冊
+app.component('productModalComponent',ProductModalComponent); // 區域註冊
 app.mount("#app");
