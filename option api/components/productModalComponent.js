@@ -27,16 +27,13 @@ export default {
                             </div>
                             <img class="img-fluid" :src="product.imageUrl" alt="">
                         </div>
-                        <h3 class="mb-3">多圖新增</h3>
+                        <h4 class="mb-3">多圖新增</h4>
                         <!-- 檢查是否為陣列 -->
-                        <div v-if="Array.isArray(product.imagesUrl)">
-                            <div class="mb-1" v-for="(image,key) in product.imagesUrl" :key="key">
-                                <div class="mb-3">
-                                    <label :for="\`imagesUrl${key}\`" class="form-label"></label>
-                                    <input :id="\`imagesUrl${key}\`" v-model="product.imagesUrl[key]"
-                                        type="text" class="form-control" placeholder="請輸入圖片連結">
-                                </div>
-                                <img class="img-fluid" :src="image" alt="">
+                        <div>
+                            <div v-for="(img,key) in product.imageUrl" :key="key + 123">
+                                <img :src="img" alt="" class="img-fluid"></img>
+                                <input type="text" class="form-control" 
+                                v-model="product.imageUrl[key]">
                             </div>
                         </div>
                         <div
@@ -127,17 +124,17 @@ export default {
 </div>`,
     methods: {
         updateProduct() {
-            let updateOrNewUrl = `${url}/api/${path}/admin/product/${product.id}`;
+            let updateOrNewUrl = `${this.url}/api/${this.path}/admin/product/${this.product.id}`;
             let http = "put";
             if (this.isNew) {
-              updateOrNewUrl = `${url}/api/${path}/admin/product`;
+              updateOrNewUrl = `${this.url}/api/${this.path}/admin/product`;
               http = "post";
             }
-            axios[http](updateOrNewUrl, { data: product })
+            axios[http](updateOrNewUrl, { data: this.product })
               .then((res) => {
                 alert(res.data.message);
                 productModal.hide();
-                getProducts(); //取得所有產品
+                this.$emit('getProducts'); //取得所有產品
               })
               .catch((error) => {
                 alert(error.response.data.message);
