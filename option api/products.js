@@ -1,6 +1,6 @@
 import { createApp } from "vue";
-import PaginationComponent from "./components/paginationComponent.js";
-import ProductModalComponent from "./components/productModalComponent.js";
+import paginationComponent from "./components/paginationComponent.js";
+import productModalComponent from "./components/productModalComponent.js";
 
 // let productModal = null;
 let deleteProductModal = null;
@@ -19,6 +19,10 @@ const app = createApp({
       pagination: {},
       productModal:null
     };
+  },
+  components:{ //components要加s，因為可能有很多個子元件
+    paginationComponent,
+    productModalComponent
   },
   methods: {
     checkLogin() {
@@ -57,7 +61,7 @@ const app = createApp({
     },
     getProducts(page = 1) {
       //給參數預設值
-      const getUrl = `${url}/api/${path}/admin/products?page=${page}`; //為網址參數寫法，page參數帶入，取得當前頁碼的產品資料
+      const getUrl = `${url}/api/${path}/admin/products?page=${page}`; //(query)為網址參數寫法，page參數帶入，取得當前頁碼的產品資料
       axios
         .get(getUrl)
         .then((res) => {
@@ -115,6 +119,6 @@ const app = createApp({
     );
   }
 });
-app.component('pagination-component',PaginationComponent); // 區域註冊
-app.component('productModalComponent',ProductModalComponent); // 區域註冊
+// app.component('pagination-component',PaginationComponent); // 區域註冊
+// app.component('productModalComponent',ProductModalComponent); // 區域註冊
 app.mount("#app");

@@ -73,9 +73,9 @@
             </table>
         </div>
         <!-- 分頁元件 -->
-        <pagination-component :pages="pagination" @change-page="getProducts"></pagination-component>
+        <pagination-component :pages="pagination" :get-products="getProducts"></pagination-component>
         <!-- Modal -->
-        <productModalComponent :product="tempProduct" :getProducts="getProducts" :url="url" :path="path" :productModal="productModal" :imagesUrl="imagesUrl"></productModalComponent>
+        <productModalComponent :product="tempProduct" :get-products="getProducts" :url="url" :path="path" :productModal="productModal" :imagesUrl="imagesUrl" :isNew="isNew" @openModal="openModal" @hideModal="hideModal"></productModalComponent>
         <!-- <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-xl">
