@@ -1,9 +1,10 @@
 import { createApp } from "vue";
 import paginationComponent from "./components/paginationComponent.js";
 import productModalComponent from "./components/productModalComponent.js";
+import deleteModalComponent from "./components/deleteModalComponent.js";
 
 // let productModal = null;
-let deleteProductModal = null;
+// let deleteProductModal = null;
 //因為有其他元件也會使用到，因此將url相關資訊寫在全域
 const url = "https://ec-course-api.hexschool.io/v2";
 const path = "hsuanin-vue2024";
@@ -17,12 +18,12 @@ const app = createApp({
         imagesUrl: [],
       },
       pagination: {},
-      productModal:null
     };
   },
   components:{ //components要加s，因為可能有很多個子元件
     paginationComponent,
-    productModalComponent
+    productModalComponent,
+    deleteModalComponent
   },
   methods: {
     checkLogin() {
@@ -48,15 +49,18 @@ const app = createApp({
           imagesUrl: [],
         };
         this.isNew = true;
-        this.productModal.show();
+        this.$refs.pModal.openModal();
       } else if (status === "edit") {
         this.tempProduct = { ...item };
         this.isNew = false;
-        this.productModal.show();
+        this.$refs.pModal.openModal();
       } else if (status === "delete") {
         this.tempProduct = { ...item };
+        if(!Array.isArray(this.tempProduct.imagesUrl)){
+          this.tempProduct.imagesUrl = [];
+        }
         this.isNew = false;
-        deleteProductModal.show();
+        this.$refs.dModal.openModal();
       }
     },
     getProducts(page = 1) {
@@ -77,13 +81,30 @@ const app = createApp({
           window.location = "login.html";
         });
     },
+    updateProduct() {
+      let updateOrNewUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
+      let http = "put";
+      if (this.isNew) {
+        updateOrNewUrl = `${url}/api/${path}/admin/product`;
+        http = "post";
+      }
+      axios[http](updateOrNewUrl, { data: this.tempProduct })
+        .then((res) => {
+          alert(res.data.message);
+          this.$refs.pModal.closeModal();
+          this.getProducts(); //取得所有產品
+        })
+        .catch((error) => {
+          alert(error.response.data.message);
+        });
+    },
     delProduct() {
       const deleteUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
       axios
         .delete(deleteUrl)
         .then((res) => {
           alert(res.data.message);
-          deleteProductModal.hide();
+          this.$refs.dModal.closeModal();
           this.getProducts(); //更新所有產品
         })
         .catch((error) => {
@@ -103,20 +124,6 @@ const app = createApp({
     // console.log(token);
     axios.defaults.headers.common["Authorization"] = token;
     this.checkLogin();
-    this.productModal = new bootstrap.Modal(
-      document.getElementById("productModal"),
-      {
-        keyboard: false,
-        backdrop: "static",
-      }
-    );
-    deleteProductModal = new bootstrap.Modal(
-      document.getElementById("delProductModal"),
-      {
-        keyboard: false,
-        backdrop: "static",
-      }
-    );
   }
 });
 // app.component('pagination-component',PaginationComponent); // 區域註冊
