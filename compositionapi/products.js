@@ -1,119 +1,129 @@
 import { createApp,ref,onMounted } from "vue";
-const createAppVue = createApp;
+import paginationComponent from "./components/paginationComponent.js";
+import productModalComponent from "./components/productModalComponent.js";
+import deleteModalComponent from "./components/deleteModalComponent.js";
 
-//modal 需要放在全域
-let productModal = null;
-let deleteProductModal = null;
+// let productModal = null;
+// let deleteProductModal = null;
+//因為有其他元件也會使用到，因此將url相關資訊寫在全域
+const url = "https://ec-course-api.hexschool.io/v2";
+const path = "hsuanin-vue2024";
 
-const app = createAppVue({
+const app = createApp({
   setup() {
-    const url = ref("https://ec-course-api.hexschool.io/v2");
-    const path = ref("hsuanin-vue2024");
-    const products = ref([]);
-    const isNew = ref(false);
-    const tempProduct = ref({
-      imagesUrl:[],
-    })
-
-    function checkLogin(params) {
-      axios
-        .post(`${url.value}/api/user/check`)
-        //成功的結果
-        .then((res) => {
-          console.log(res);
-          getProduct();
-        })
-        //失敗結果
-        .catch((error) => {
-          console.dir(error); //用dir可以展開資訊
-          alert("未登入");
-          window.location = "login.html";
-        });
-    }
-    function getProduct() {
-      axios
-        .get(`${url.value}/api/${path.value}/admin/products`)
-        .then((res) => {
-          console.log(res.data);
-          products.value = res.data.products;
-          console.log(products.value);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-    function openModal(status,product){
-      console.log(product)
-      if(status === 'new'){
-        tempProduct.value = {
-          imagesUrl:[],
-        }
-        isNew.value = true;
-        productModal.show();
-      }else if(status === 'edit'){
-        tempProduct.value = {...product};
-        isNew.value = false;
-        productModal.show();
-      }else if(status === 'delete'){
-        tempProduct.value = {...product};
-        isNew.value = false;
-        deleteProductModal.show();
-      }
-    }
-    function updateProduct(){
-      let updateOrNewUrl = `${url.value}/api/${path.value}/admin/product/${tempProduct.value.id}`; //更新的api，需要id才知道要更新哪個
-      let http = 'put';//axios 使用的方法
-      if(isNew.value){
-        updateOrNewUrl = `${url.value}/api/${path.value}/admin/product`;//新增api
-        http = 'post';//axios 使用的方法
-      }
-      axios[http](updateOrNewUrl,{data:tempProduct.value})
-      .then((res)=>{
-        alert(res.data.message);
-        productModal.hide();//關閉更新視窗
-        getProduct();//重新渲染
-      })
-      .catch((error)=>{
-        alert(error.response.data.message);
-      })
-    }
-    function createImages(){
-      tempProduct.imagesUrl = [];//清空imagesUrl
-      tempProduct.imagesUrl.push('');//新增imagesUrl
-    }
-    function delProduct(){
-      let deleteUrl = `${url.value}/api/${path.value}/admin/product/${tempProduct.value.id}`; //刪除的api，需要id才知道要更新哪個
-      axios.delete(deleteUrl)
-      .then((res)=>{
-        alert(res.data.message);
-        deleteProductModal.hide();//關閉更新視窗
-        getProduct();//重新渲染
-      })
-      .catch((error)=>{
-        alert(error.response.data.message);
-      })
-    }
-    onMounted(() => {
-      const token = document.cookie.replace(
-        /(?:(?:^|.*;\s*)hexToken\s*\=\s*([^;]*).*$)|^.*$/,
-        "$1"
-      );
-      // console.log(token);
-      axios.defaults.headers.common["Authorization"] = token;
-      checkLogin();
-      //創建modal實例，可以手動寫開關
-      productModal = new bootstrap.Modal(document.getElementById("productModal"),{
-        keyboard:false,
-        backdrop:'static'
+      const isNew = ref(false);
+      const products = ref([]);
+      const tempProduct = ref({
+        imagesUrl: [],
       });
-      deleteProductModal = new bootstrap.Modal(document.getElementById("delProductModal"),{
-        keyboard:false,
-        backdrop:'static'
-      })
-    })
-    return {
-      url,path,products,isNew,tempProduct,checkLogin,getProduct,openModal,updateProduct,createImages,delProduct
-    };
+      const pagination = ref({});
+      function checkLogin() {
+          console.log(url);
+          axios
+            .post(`${url}/api/user/check`)
+            //成功的結果
+            .then((res) => {
+              console.log(res);
+              this.getProducts();
+            })
+            //失敗結果
+            .catch((error) => {
+              console.dir(error); //用dir可以展開資訊
+              alert("未登入");
+              window.location = "login.html";
+            });
+        }
+        function openModal(status, item) {
+          if (status === "new") {
+            this.tempProduct = {
+              imagesUrl: [],
+            };
+            this.isNew = true;
+            this.$refs.pModal.openModal();
+          } else if (status === "edit") {
+            this.tempProduct = { ...item };
+            this.isNew = false;
+            this.$refs.pModal.openModal();
+          } else if (status === "delete") {
+            this.tempProduct = { ...item };
+            if(!Array.isArray(this.tempProduct.imagesUrl)){
+              this.tempProduct.imagesUrl = [];
+            }
+            this.isNew = false;
+            this.$refs.dModal.openModal();
+          }
+        }
+        function getProducts(page = 1) {
+          //給參數預設值
+          const getUrl = `${url}/api/${path}/admin/products?page=${page}`; //(query)為網址參數寫法，page參數帶入，取得當前頁碼的產品資料
+          axios
+            .get(getUrl)
+            .then((res) => {
+              console.log(res.data);
+              const { products, pagination } = res.data;
+              this.products = products;
+              this.pagination = pagination;
+              console.log(this.products);
+            })
+            .catch((error) => {
+              alert(error.response.data.message);
+              console.log(error);
+              window.location = "login.html";
+            });
+        }
+        function updateProduct() {
+          let updateOrNewUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
+          let http = "put";
+          if (this.isNew) {
+            updateOrNewUrl = `${url}/api/${path}/admin/product`;
+            http = "post";
+          }
+          axios[http](updateOrNewUrl, { data: this.tempProduct })
+            .then((res) => {
+              alert(res.data.message);
+              this.$refs.pModal.closeModal();
+              this.getProducts(); //取得所有產品
+            })
+            .catch((error) => {
+              alert(error.response.data.message);
+            });
+        }
+        function delProduct() {
+          const deleteUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
+          axios
+            .delete(deleteUrl)
+            .then((res) => {
+              alert(res.data.message);
+              this.$refs.dModal.closeModal();
+              this.getProducts(); //更新所有產品
+            })
+            .catch((error) => {
+              alert(error.response.data.message);
+            });
+        }
+        function createImages() {
+          this.tempProduct.imagesUrl = [];
+          this.tempProduct.imagesUrl.push("");
+        }
+        onMounted()=> {
+          const token = document.cookie.replace(
+            /(?:(?:^|.*;\s*)hexToken\s*\=\s*([^;]*).*$)|^.*$/,
+            "$1"
+          );
+          // console.log(token);
+          axios.defaults.headers.common["Authorization"] = token;
+          this.checkLogin();
+        }
+        components:{ //components要加s，因為可能有很多個子元件
+          paginationComponent,
+          productModalComponent,
+          deleteModalComponent
+        }
+        return {
+          isNew,products,tempProduct,imagesUrl,pagination,checkLogin,updateProduct,delProduct,createImages
+        };
   }
-})
+});
+// app.component('pagination-component',PaginationComponent); // 區域註冊
+// app.component('productModalComponent',ProductModalComponent); // 區域註冊
 app.mount("#app");
