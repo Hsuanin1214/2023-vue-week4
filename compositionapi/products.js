@@ -24,7 +24,7 @@ const app = createApp({
             //成功的結果
             .then((res) => {
               console.log(res);
-              this.getProducts();
+              getProducts();
             })
             //失敗結果
             .catch((error) => {
@@ -35,21 +35,21 @@ const app = createApp({
         }
         function openModal(status, item) {
           if (status === "new") {
-            this.tempProduct = {
+            tempProduct.value = {
               imagesUrl: [],
             };
-            this.isNew = true;
+            isNew.value = true;
             this.$refs.pModal.openModal();
           } else if (status === "edit") {
-            this.tempProduct = { ...item };
-            this.isNew = false;
+            tempProduct.value = { ...item };
+            isNew.value = false;
             this.$refs.pModal.openModal();
           } else if (status === "delete") {
-            this.tempProduct = { ...item };
-            if(!Array.isArray(this.tempProduct.imagesUrl)){
-              this.tempProduct.imagesUrl = [];
+            tempProduct.value = { ...item };
+            if(!Array.isArray(tempProduct.value.imagesUrl)){
+              tempProduct.value.imagesUrl = [];
             }
-            this.isNew = false;
+            isNew.value = false;
             this.$refs.dModal.openModal();
           }
         }
@@ -61,8 +61,8 @@ const app = createApp({
             .then((res) => {
               console.log(res.data);
               const { products, pagination } = res.data;
-              this.products = products;
-              this.pagination = pagination;
+              products.value = products;
+              pagination.value = pagination;
               console.log(this.products);
             })
             .catch((error) => {
@@ -72,38 +72,38 @@ const app = createApp({
             });
         }
         function updateProduct() {
-          let updateOrNewUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
+          let updateOrNewUrl = `${url}/api/${path}/admin/product/${tempProduct.value.id}`;
           let http = "put";
-          if (this.isNew) {
+          if (isNew.value) {
             updateOrNewUrl = `${url}/api/${path}/admin/product`;
             http = "post";
           }
-          axios[http](updateOrNewUrl, { data: this.tempProduct })
+          axios[http](updateOrNewUrl, { data: tempProduct.value })
             .then((res) => {
               alert(res.data.message);
               this.$refs.pModal.closeModal();
-              this.getProducts(); //取得所有產品
+              getProducts(); //取得所有產品
             })
             .catch((error) => {
               alert(error.response.data.message);
             });
         }
         function delProduct() {
-          const deleteUrl = `${url}/api/${path}/admin/product/${this.tempProduct.id}`;
+          const deleteUrl = `${url}/api/${path}/admin/product/${tempProduct.value.id}`;
           axios
             .delete(deleteUrl)
             .then((res) => {
               alert(res.data.message);
               this.$refs.dModal.closeModal();
-              this.getProducts(); //更新所有產品
+              getProducts(); //更新所有產品
             })
             .catch((error) => {
               alert(error.response.data.message);
             });
         }
         function createImages() {
-          this.tempProduct.imagesUrl = [];
-          this.tempProduct.imagesUrl.push("");
+          tempProduct.value.imagesUrl = [];
+          tempProduct.value.imagesUrl.push("");
         }
         onMounted()=> {
           const token = document.cookie.replace(
@@ -112,7 +112,7 @@ const app = createApp({
           );
           // console.log(token);
           axios.defaults.headers.common["Authorization"] = token;
-          this.checkLogin();
+          checkLogin();
         }
         components:{ //components要加s，因為可能有很多個子元件
           paginationComponent,
