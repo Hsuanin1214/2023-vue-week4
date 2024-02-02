@@ -75,8 +75,8 @@
         <!-- 分頁元件 -->
         <pagination-component :pages="pagination" :get-products="getProducts"></pagination-component>
         <!-- Modal -->
-        <Product-Modal-Component :isNew="isNew" :temp-product="tempProduct" :update-product="updateProduct" ref="pModal"></Product-Modal-Component>
-        <Delete-Modal-Component :delProduct="delProduct" ref="dModal"></Delete-Modal-Component>
+        <product-modal-component :is-new="isNew" :temp-product="tempProduct" :update-product="updateProduct" ref="pModal"></product-modal-component>
+        <delete-modal-component :del-product="delProduct" ref="dModal"></delete-modal-component>
         
         <!-- Modal -->
     </div>
