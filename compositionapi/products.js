@@ -105,7 +105,7 @@ const app = createApp({
           tempProduct.value.imagesUrl = [];
           tempProduct.value.imagesUrl.push("");
         }
-        onMounted()=> {
+        onMounted(()=> {
           const token = document.cookie.replace(
             /(?:(?:^|.*;\s*)hexToken\s*\=\s*([^;]*).*$)|^.*$/,
             "$1"
@@ -113,7 +113,7 @@ const app = createApp({
           // console.log(token);
           axios.defaults.headers.common["Authorization"] = token;
           checkLogin();
-        }
+        })
         components:{ //components要加s，因為可能有很多個子元件
           paginationComponent,
           productModalComponent,
