@@ -1,9 +1,9 @@
 //1.先把元件環境建立好
-//2.把版型ˊ加入
+//2.把版型加入
 //3.解除版型內的錯誤
+
 export default {
-  data() {
-    return {};
+  setup(props) {
   },
   props: ['pages','getProducts'],
   template:
@@ -34,9 +34,4 @@ export default {
             </li>
         </ul>
     </nav>`,
-  methods: {
-    changePage(num) {
-      this.$emit("change-page", num);
-    },
-  },
 };
