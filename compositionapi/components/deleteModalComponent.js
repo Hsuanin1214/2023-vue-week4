@@ -1,11 +1,30 @@
+import { ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
 export default {
-    props:["delProduct"],
-    data() {
-        return {
-            delProductModal: null,
-        };
-    },
-    template:`<div id="delProductModal" ref="delProductModal" class="modal fade" tabindex="-1"
+  props: ["delProduct"],
+  setup(props) {
+    const delProductModal = ref(null);
+    const openModal = () => {
+      delProductModal.value.show();
+    };
+    // 替代原有的 methods
+    const closeModal = () => {
+      delProductModal.value.hide();
+    };
+    // 替代原有的 mounted 生命週期鉤子
+    onMounted(() => {
+      if (delProductModal.value) {
+        const modalElement = delProductModal.value;
+        delProductModal.value = new bootstrap.Modal(modalElement);
+      }
+    });
+    return {
+      delProductModal,
+      openModal,
+      closeModal,
+    };
+  },
+  // composition api 需要將ref變成動態 :ref
+  template: `<div id="delProductModal" ref="delProductModal" class="modal fade" tabindex="-1"
     aria-labelledby="delProductModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content border-0">
@@ -30,15 +49,4 @@ export default {
         </div>
     </div>
 </div>`,
-methods: {
-    openModal() {
-      this.delProductModal.show();
-    },
-    closeModal() {
-      this.delProductModal.hide();
-    },
-  },
-  mounted() {
-    this.delProductModal = new bootstrap.Modal(this.$refs.delProductModal);
-  },
-}
+};
