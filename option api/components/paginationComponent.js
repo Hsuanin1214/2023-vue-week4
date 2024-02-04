@@ -34,9 +34,4 @@ export default {
             </li>
         </ul>
     </nav>`,
-  methods: {
-    changePage(num) {
-      this.$emit("change-page", num);
-    },
-  },
 };
